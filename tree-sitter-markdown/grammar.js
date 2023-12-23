@@ -104,33 +104,37 @@ module.exports = grammar({
         // https://github.github.com/gfm/#atx-headings
         _atx_heading1: $ => prec(1, seq(
             $.atx_h1_marker,
-            optional(field('heading_content', alias($._line, $.inline))),
+            optional($._atx_heading_content),
             $._newline
         )),
         _atx_heading2: $ => prec(1, seq(
             $.atx_h2_marker,
-            optional(field('heading_content', alias($._line, $.inline))),
+            optional($._atx_heading_content),
             $._newline
         )),
         _atx_heading3: $ => prec(1, seq(
             $.atx_h3_marker,
-            optional(field('heading_content', alias($._line, $.inline))),
+            optional($._atx_heading_content),
             $._newline
         )),
         _atx_heading4: $ => prec(1, seq(
             $.atx_h4_marker,
-            optional(field('heading_content', alias($._line, $.inline))),
+            optional($._atx_heading_content),
             $._newline
         )),
         _atx_heading5: $ => prec(1, seq(
             $.atx_h5_marker,
-            optional(field('heading_content', alias($._line, $.inline))),
+            optional($._atx_heading_content),
             $._newline
         )),
         _atx_heading6: $ => prec(1, seq(
             $.atx_h6_marker,
-            optional(field('heading_content', alias($._line, $.inline))),
+            optional($._atx_heading_content),
             $._newline
+        )),
+        _atx_heading_content: $ => prec(1, seq(
+            optional($._whitespace),
+            field('heading_content', alias($._line, $.inline))
         )),
 
         // A setext heading. The underlines are currently handled by the external scanner but maybe
@@ -450,9 +454,14 @@ module.exports = grammar({
                 choice(
                     seq(
                         repeat1(prec.right(seq(
-                            optional($._whitespace),
-                            optional($.pipe_table_cell),
-                            optional($._whitespace),
+                            choice(
+                                seq(
+                                    optional($._whitespace),
+                                    $.pipe_table_cell,
+                                    optional($._whitespace)
+                                ),
+                                alias($._whitespace, $.pipe_table_cell)
+                            ),
                             '|',
                         ))),
                         optional($._whitespace),
